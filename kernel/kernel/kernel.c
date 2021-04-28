@@ -1,5 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
+
+#include "kernel/tables.h"
 
 typedef enum {
     VGA_COLOR_BLACK = 0,
@@ -49,9 +52,7 @@ void terminal_init()
             const size_t index = y * VGA_WIDTH + x;
             terminal_buffer[index] = vga_entry(' ', terminal_color);
         }
-        
     }
-    
 }
 
 void terminal_newline()
@@ -61,16 +62,6 @@ void terminal_newline()
     {
         terminal_row = 0;
     }
-}
-
-size_t strlen(const char* str)
-{
-    size_t len = 0;
-    while (str[len])
-    {
-        len++;
-    }
-    return len;
 }
 
 void terminal_put_char(const char c)
@@ -98,7 +89,7 @@ void terminal_write_buf(const char* buffer, size_t length)
     for (size_t i = 0; i < length; i++)
     {
         terminal_put_char(buffer[i]);
-    }   
+    }
 }
 
 void terminal_write_str(const char* data)
@@ -108,6 +99,8 @@ void terminal_write_str(const char* data)
 
 void kernel_main()
 {
+    descriptor_tables_init();
+
     terminal_init();
     terminal_write_str("Hello, World!\n");
     terminal_write_str("Nice\n");

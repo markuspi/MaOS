@@ -10,4 +10,5 @@ enable_language(ASM_NASM)
 
 project(MaOS C)
 
+add_subdirectory(libc)
 add_subdirectory(kernel)
