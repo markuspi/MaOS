@@ -56,6 +56,14 @@ int printf(const char* format, ...)
     va_list args;
     va_start(args, format);
 
+    int result = vprintf(format, args);
+
+    va_end(args);
+    return result;
+}
+
+int vprintf(const char* format, va_list args)
+{
     size_t written = 0;
     int error;
 
@@ -117,6 +125,5 @@ int printf(const char* format, ...)
         }
     }    
 
-    va_end(args);
     return written;
 }
