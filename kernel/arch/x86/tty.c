@@ -94,3 +94,8 @@ uint16_t tty_entry(unsigned char c, uint8_t color)
 {
     return (uint16_t) c | (uint16_t) color << 8;
 }
+
+void tty_setcolor(uint8_t color)
+{
+    tty_color = color;
+}
