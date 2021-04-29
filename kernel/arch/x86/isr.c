@@ -1,5 +1,6 @@
 
 #include "kernel/port.h"
+#include "kernel/common.h"
 
 #include "kernel/isr.h"
 
@@ -9,6 +10,7 @@ static void isr_handle_page_fault(uint32_t err_code)
 {
     uint32_t addr;
     asm volatile ("mov %%cr2, %0" : "=r" (addr));
+    PANIC("Page Fault: addr=%x code=%x", addr, err_code);
 }
 
 static void isr_handle_exception(uint8_t int_no, uint32_t err_code)

@@ -1,8 +1,8 @@
 #pragma once
 
 #define PACKED __attribute__((packed))
-#define PANIC(format, args...) kernel_panic(__FILE__, __LINE__, format, args)
-#define ASSERT(exp, args...)  if (!(exp)) PANIC("Assertion Error: " args)
+#define PANIC(format, ...) kernel_panic(__FILE__, __LINE__, format, ##__VA_ARGS__)
+#define ASSERT(exp, args...)  if (!(exp)) PANIC("Assertion Error: (" #exp ") == false\n" args)
 
 void halt();
 

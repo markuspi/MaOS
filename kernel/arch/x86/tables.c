@@ -129,4 +129,5 @@ static void idt_init()
 void descriptor_tables_init()
 {
     gdt_init();
+    idt_init();
 }

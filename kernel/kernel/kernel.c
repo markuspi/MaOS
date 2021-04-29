@@ -18,6 +18,4 @@ void kernel_main()
     tty_setcolor(0xB4);
     printf("1234567890\n");
     printf("%05d\n", -1);
-
-    PANIC("BAD: %s", "message");
 }
