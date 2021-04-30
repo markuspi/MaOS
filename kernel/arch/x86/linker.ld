@@ -18,6 +18,8 @@ SECTIONS
     }
 
     . += KERNEL_OFFSET;
+    _kernel_start = .;
+    _kernel_start_phys = . - KERNEL_OFFSET;
 
     .text ALIGN(4K) : AT(ADDR(.text) - KERNEL_OFFSET)
     {
@@ -39,4 +41,8 @@ SECTIONS
         *(COMMON)
         *(.bss)
     }
+
+    _kernel_end = .;
+    _kernel_end_phys = . - KERNEL_OFFSET;
+
 }

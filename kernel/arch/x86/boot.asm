@@ -16,18 +16,28 @@ align 4
 	dd FLAGS_
 	dd CHECKSUM
 
-section .multiboot_bss nobits write
+section .bss
 align 4096
 boot_page_directory:
     resb 4096
 boot_page_table:
-    resb 4096
-
-section .bss
-align 4096
+    resb 4096 * 2
+boot_page_table_end:
 stack_bottom:
-resb 16384  ; 16 KiB
+    resb 16384  ; 16 KiB
 stack_top:
+boot_used_pages:
+    resb 4
+
+phys_page_directory: equ boot_page_directory - 0xC0000000
+phys_page_table: equ boot_page_table - 0xC0000000
+phys_page_table_end: equ boot_page_table_end - 0xC0000000
+phys_used_pages: equ boot_used_pages - 0xC0000000
+
+global boot_page_directory
+global boot_page_table
+global boot_page_table_end
+global boot_used_pages
 
 ; ENTRY FUNCTION
 section .multiboot_text
@@ -35,7 +45,7 @@ global _start:function (_start.end - _start)
 _start:
 
     ; fill page directory with zeros
-    mov edi, boot_page_directory
+    mov edi, phys_page_directory
     mov ecx, 1024
 .loop:
     mov dword [edi], 0
@@ -44,25 +54,27 @@ _start:
     jnz .loop
 
     ; fill page table with valid entries
-    mov edi, boot_page_table
+    mov edi, phys_page_table
     mov esi, 0
-    mov ecx, 1024
 .loop2:
     mov eax, esi
     or eax, 0b11  ; set flags
     mov [edi], eax
     add esi, 4096
     add edi, 4
-    dec ecx
-    jnz .loop2
+    cmp edi, phys_page_table_end
+    jne .loop2
 
-    ; create a PDE for first 4MB starting at 0xC0000000 virtual, pointing to 0x00000000 physical
+    mov dword [phys_used_pages], 1024
+
+    ; create a PDE for first 8MB starting at 0xC0000000 virtual, pointing to 0x00000000 physical
     ; setting flags 0 (Present), 1 (Read/Write)
-    mov dword [boot_page_directory + 0], boot_page_table + 0b11  ; identity mapping
-    mov dword [boot_page_directory + 4 * 0x300], boot_page_table + 0x11  ; actual mapping
+    mov dword [phys_page_directory + 0], phys_page_table + 0b11  ; identity mapping
+    mov dword [phys_page_directory + 4 * 0x300], phys_page_table + 0x11  ; actual mapping
+    mov dword [phys_page_directory + 4 * 0x301], phys_page_table + 0x11 + 4096
 
     ; store page directory location
-    mov ecx, boot_page_directory
+    mov ecx, phys_page_directory
     mov cr3, ecx
 
     ; set CR0.31 (Paging)
@@ -79,7 +91,7 @@ paged:
     ; at this point, paging is enabled
 
     ; unmap identity mapping
-    mov dword [boot_page_directory + 0xC0000000 + 0], 0
+    mov dword [boot_page_directory + 0], 0
 
     ; reload cr3 to force TLB flush
     mov ecx, cr3

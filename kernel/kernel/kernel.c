@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "kernel/memory.h"
 #include "kernel/tables.h"
 #include "kernel/tty.h"
 #include "kernel/common.h"
@@ -11,14 +12,11 @@ void kernel_main()
 {
     tty_init();
     descriptor_tables_init();
+    pmm_bootstrap();
+    paging_bootstrap();
+
+    pmm_init();
     
-    tty_writestr("Hello, World!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
-    tty_writestr("Nice\n");
+    printf("Hello, World!\n");
 
-    tty_setcolor(0xB4);
-    printf("1234567890\n");
-    printf("%05d\n", -1);
-
-    uint8_t* p = 0x123;
-    p[0] = 1;
 }

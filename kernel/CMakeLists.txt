@@ -10,3 +10,4 @@ target_link_libraries(kernel PRIVATE k)
 target_link_options(kernel PRIVATE -nostdlib -T ${ARCH_DIR}/linker.ld)
 
 add_custom_target(qemu qemu-system-i386 -kernel "$<TARGET_FILE:kernel>" DEPENDS kernel)
+add_custom_target(qemu-gdb qemu-system-i386 -kernel "$<TARGET_FILE:kernel>" -s -S DEPENDS kernel)
