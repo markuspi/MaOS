@@ -6,19 +6,19 @@
 
 static isr_t interrupt_handlers[256];
 
-static void isr_handle_page_fault(uint32_t err_code)
+static void isr_handle_page_fault(uint32_t err_code, uint32_t eip)
 {
     uint32_t addr;
     asm volatile ("mov %%cr2, %0" : "=r" (addr));
-    PANIC("Page Fault: addr=%x code=%x", addr, err_code);
+    PANIC("Page Fault: addr=0x%08x code=0x%x eip=0x%08x", addr, err_code, eip);
 }
 
-static void isr_handle_exception(uint8_t int_no, uint32_t err_code)
+static void isr_handle_exception(uint8_t int_no, uint32_t err_code, uint32_t eip)
 {
     switch (int_no)
     {
     case 14:
-        isr_handle_page_fault(err_code);
+        isr_handle_page_fault(err_code, eip);
         break;    
     default:
         break;
@@ -41,7 +41,7 @@ static void isr_handle_irq(uint8_t int_no)
 void isr_handler(registers_t regs)
 {
     if (regs.int_no <= 31) {
-        isr_handle_exception(regs.int_no, regs.err_code);
+        isr_handle_exception(regs.int_no, regs.err_code, regs.eip);
     } else {
         isr_handle_irq(regs.int_no);
     }

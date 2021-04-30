@@ -16,22 +16,81 @@ align 4
 	dd FLAGS_
 	dd CHECKSUM
 
+section .multiboot_bss nobits write
+align 4096
+boot_page_directory:
+    resb 4096
+boot_page_table:
+    resb 4096
+
 section .bss
-align 16
+align 4096
 stack_bottom:
 resb 16384  ; 16 KiB
 stack_top:
 
-section .text
+; ENTRY FUNCTION
+section .multiboot_text
 global _start:function (_start.end - _start)
 _start:
+
+    ; fill page directory with zeros
+    mov edi, boot_page_directory
+    mov ecx, 1024
+.loop:
+    mov dword [edi], 0
+    add edi, 4
+    dec ecx
+    jnz .loop
+
+    ; fill page table with valid entries
+    mov edi, boot_page_table
+    mov esi, 0
+    mov ecx, 1024
+.loop2:
+    mov eax, esi
+    or eax, 0b11  ; set flags
+    mov [edi], eax
+    add esi, 4096
+    add edi, 4
+    dec ecx
+    jnz .loop2
+
+    ; create a PDE for first 4MB starting at 0xC0000000 virtual, pointing to 0x00000000 physical
+    ; setting flags 0 (Present), 1 (Read/Write)
+    mov dword [boot_page_directory + 0], boot_page_table + 0b11  ; identity mapping
+    mov dword [boot_page_directory + 4 * 0x300], boot_page_table + 0x11  ; actual mapping
+
+    ; store page directory location
+    mov ecx, boot_page_directory
+    mov cr3, ecx
+
+    ; set CR0.31 (Paging)
+    mov ecx, cr0
+    or ecx, 0x80000000
+    mov cr0, ecx
+
+    ; long jump
+    jmp 0x8:paged
+.end:
+
+section .text
+paged:
+    ; at this point, paging is enabled
+
+    ; unmap identity mapping
+    mov dword [boot_page_directory + 0xC0000000 + 0], 0
+
+    ; reload cr3 to force TLB flush
+    mov ecx, cr3
+    mov cr3, ecx
+
+    ; set up the stack
     mov esp, stack_top
 
     extern kernel_main
     call kernel_main
 
-    cli
 .hang:
     hlt
     jmp .hang
-.end:

@@ -8,6 +8,7 @@ typedef struct {
     uint32_t ds;
     uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;  // Pushed by pusha
     uint32_t int_no, err_code;  // interrupt number, error code
+    uint32_t eip;
 } PACKED registers_t;
 
 typedef void (* isr_t)(uint8_t);

@@ -10,7 +10,7 @@ static const size_t TTY_HEIGHT = 25;
 
 static size_t tty_row;
 static size_t tty_column;
-static uint16_t* tty_buf = (uint16_t*) 0xB8000;
+static uint16_t* tty_buf = (uint16_t*) 0xC00B8000;
 static uint8_t tty_color;
 
 static void newline()
