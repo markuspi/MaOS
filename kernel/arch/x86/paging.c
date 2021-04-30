@@ -49,7 +49,7 @@ void* paging_steal(size_t n_pages, paddr_t* phys)
         boot_used_pages++;
     }    
 
-    printf("Stole %d page(s): 0x%08x -> 0x%08x\n", n_pages, vaddr, paddr);
+    printf("Stole %d page(s): 0x%08x -> 0x%08x. %d left\n", n_pages, vaddr, paddr, boot_mapped_pages - boot_used_pages);
 
     if (phys != NULL) {
         *phys = paddr;

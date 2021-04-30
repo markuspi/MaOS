@@ -19,4 +19,7 @@ void kernel_main()
     
     printf("Hello, World!\n");
 
+    kmalloc(12);
+    kmalloc(2090);
+    pmm_debug();
 }

@@ -20,6 +20,7 @@ typedef enum {
 void pmm_bootstrap();
 void pmm_init();
 err_t pmm_alloc(size_t n_frames, paddr_t* addr);
+void pmm_debug();
 
 void* kmalloc_extended(size_t sz, paddr_t *phys, bool page_aligned);
 #define kmalloc(sz) kmalloc_extended(sz, NULL, false)
