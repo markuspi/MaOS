@@ -28,3 +28,11 @@ void kernel_panic(const char* filename, int line, const char* format, ...)
     
     va_end(args);
 }
+
+void nopN(size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+    {
+        nop();
+    }    
+}

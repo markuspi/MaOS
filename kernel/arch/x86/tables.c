@@ -126,6 +126,21 @@ static void idt_init()
     idt_flush(&idt_descriptor);
 }
 
+void irq_clear_mask(uint8_t line)
+{
+    uint16_t port;
+    uint8_t value;
+
+    if (line < 8) {
+        port = 0x21;
+    } else {
+        port = 0xA1;
+        line -= 8;
+    }
+    value = inb(port) & ~(1 << line);
+    outb(port, value);
+}
+
 void descriptor_tables_init()
 {
     gdt_init();

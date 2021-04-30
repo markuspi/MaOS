@@ -18,18 +18,22 @@ extern uint32_t boot_used_pages;
 static uint32_t boot_mapped_pages;
 static uint32_t next_addr;
 
+static paging_state_t paging_state = paging_state_uninitialized;
+
 void paging_bootstrap()
 {
     boot_mapped_pages = (boot_page_table_end - boot_page_table);
     printf("Boot Mapped Pages: %d Used Pages: %d\n", boot_mapped_pages, boot_used_pages);
+    paging_state = paging_state_steal;
 }
 
 void paging_init()
 {
 
+    paging_state = paging_state_active;
 }
 
-void* paging_steal(size_t n_pages, paddr_t* phys)
+static void* paging_steal(size_t n_pages, paddr_t* phys)
 {
     paddr_t paddr;
     err_t error;
@@ -56,4 +60,18 @@ void* paging_steal(size_t n_pages, paddr_t* phys)
     }
 
     return (void*) vaddr;
+}
+
+void* paging_alloc(size_t n_pages, paddr_t* phys)
+{
+    switch (paging_state)
+    {
+    case paging_state_active:
+        return paging_alloc(n_pages, phys);
+    case paging_state_steal:
+        return paging_steal(n_pages, phys);    
+    default:
+        PANIC("Invalid paging state");
+        break;
+    }
 }

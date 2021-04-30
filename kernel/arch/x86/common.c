@@ -4,3 +4,11 @@
 void inline halt() {
     asm volatile ("hlt");
 }
+
+void inline nop() {
+    asm volatile ("nop");
+}
+
+void inline sti() {
+    asm volatile ("sti");
+}

@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+
 #include "kernel/port.h"
 #include "kernel/common.h"
 
@@ -21,6 +23,7 @@ static void isr_handle_exception(uint8_t int_no, uint32_t err_code, uint32_t eip
         isr_handle_page_fault(err_code, eip);
         break;    
     default:
+        printf("ISR EXCEPTION #%d\n", int_no);
         break;
     }
 }
@@ -35,6 +38,8 @@ static void isr_handle_irq(uint8_t int_no)
     if (interrupt_handlers[int_no] != 0) {
         isr_t handler = interrupt_handlers[int_no];
         handler(int_no);
+    } else {
+        printf("IRQ%d\n", int_no - 32);
     }
 }
 
@@ -45,4 +50,9 @@ void isr_handler(registers_t regs)
     } else {
         isr_handle_irq(regs.int_no);
     }
+}
+
+void irq_register_handler(uint8_t int_no, isr_t handler)
+{
+    interrupt_handlers[int_no] = handler;
 }

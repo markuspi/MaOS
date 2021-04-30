@@ -12,3 +12,5 @@ typedef struct {
 } PACKED registers_t;
 
 typedef void (* isr_t)(uint8_t);
+
+void irq_register_handler(uint8_t int_no, isr_t handler);

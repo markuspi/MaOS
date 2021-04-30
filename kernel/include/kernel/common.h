@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef enum {
     E_OK = 0,
@@ -19,5 +20,8 @@ typedef enum {
 typedef uint32_t paddr_t;
 
 void halt();
+void sti();
+void nop();
+void nopN(size_t n);
 
 void kernel_panic(const char* filename, int line, const char* format, ...);

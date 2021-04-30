@@ -30,6 +30,7 @@ typedef struct {
 
 
 void descriptor_tables_init();
+void irq_clear_mask(uint8_t line);
 
 extern void gdt_flush(dt_descriptor_t*);
 extern void idt_flush(dt_descriptor_t*);

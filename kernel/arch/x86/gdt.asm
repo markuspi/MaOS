@@ -26,4 +26,5 @@ idt_flush:
     ; first parameter is linear address of idt descriptor
     mov eax, [esp+4]
     lidt [eax]
+    sti
     ret

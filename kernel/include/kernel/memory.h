@@ -16,6 +16,12 @@ typedef enum {
     pmm_state_buddy
 } pmm_state_t;
 
+typedef enum {
+    paging_state_uninitialized,
+    paging_state_steal,
+    paging_state_active
+} paging_state_t;
+
 
 void pmm_bootstrap();
 void pmm_init();
@@ -27,4 +33,4 @@ void* kmalloc_extended(size_t sz, paddr_t *phys, bool page_aligned);
 
 void paging_bootstrap();
 void paging_init();
-void* paging_steal(size_t n_pages, paddr_t* phys);
+void* paging_alloc(size_t n_pages, paddr_t* phys);
