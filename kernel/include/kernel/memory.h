@@ -30,6 +30,7 @@ void pmm_debug();
 
 void* kmalloc_extended(size_t sz, paddr_t* phys, bool page_aligned);
 #define kmalloc(sz) kmalloc_extended(sz, NULL, false)
+void kfree(void* ptr);
 
 void paging_bootstrap();
 void paging_init();
