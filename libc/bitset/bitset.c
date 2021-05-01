@@ -1,11 +1,10 @@
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "bitset.h"
 
-bool bitset_find(const bitset32_t* bitset, size_t* result)
-{
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+bool bitset_find(const bitset32_t* bitset, size_t* result) {
     uint32_t item;
     for (size_t i = 0; i < bitset->len; i++) {
         item = bitset->data[i];
@@ -23,8 +22,7 @@ bool bitset_find(const bitset32_t* bitset, size_t* result)
     return false;
 }
 
-bool bitset_read(const bitset32_t* bitset, size_t idx)
-{
+bool bitset_read(const bitset32_t* bitset, size_t idx) {
     return bitset->data[BIT_SLOT(idx)] & BIT_MASK(idx);
 }
 
@@ -44,10 +42,8 @@ void bitset_write(bitset32_t* bitset, uint32_t idx, bool state) {
     }
 }
 
-void bitset_fill(bitset32_t* bitset, uint32_t data)
-{
-    for (size_t i = 0; i < bitset->len; i++)
-    {
+void bitset_fill(bitset32_t* bitset, uint32_t data) {
+    for (size_t i = 0; i < bitset->len; i++) {
         bitset->data[i] = data;
     }
 }

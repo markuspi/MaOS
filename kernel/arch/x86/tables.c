@@ -1,18 +1,18 @@
 
+#include "kernel/tables.h"
+
 #include <stdint.h>
 #include <string.h>
 
 #include "kernel/port.h"
-
-#include "kernel/tables.h"
 
 static gdt_entry_t gdt[5];
 static dt_descriptor_t gdt_descriptor;
 static idt_entry_t idt[256];
 static dt_descriptor_t idt_descriptor;
 
-static void gdt_set_entry(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags)
-{
+static void gdt_set_entry(int num, uint32_t base, uint32_t limit,
+                          uint8_t access, uint8_t flags) {
     gdt[num].base_low = (base & 0xFFFF);
     gdt[num].base_mid = (base >> 16) & 0xFF;
     gdt[num].base_high = (base >> 24) & 0xFF;
@@ -24,10 +24,9 @@ static void gdt_set_entry(int num, uint32_t base, uint32_t limit, uint8_t access
     gdt[num].access = access;
 }
 
-static void gdt_init()
-{
+static void gdt_init() {
     gdt_descriptor.limit = sizeof(gdt) - 1;
-    gdt_descriptor.base = (uint32_t) &gdt;
+    gdt_descriptor.base = (uint32_t)&gdt;
 
     gdt_set_entry(0, 0, 0, 0, 0);
     gdt_set_entry(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
@@ -38,9 +37,9 @@ static void gdt_init()
     gdt_flush(&gdt_descriptor);
 }
 
-static void idt_set_entry(int num, void (*func)(), uint16_t sel, uint8_t flags)
-{
-    uint32_t base = (uint32_t) func;
+static void idt_set_entry(int num, void (*func)(), uint16_t sel,
+                          uint8_t flags) {
+    uint32_t base = (uint32_t)func;
 
     idt[num].base_low = base & 0xFFFF;
     idt[num].base_high = (base >> 16) & 0xFFFF;
@@ -52,10 +51,9 @@ static void idt_set_entry(int num, void (*func)(), uint16_t sel, uint8_t flags)
     idt[num].flags = flags /* | 0x60 */;
 }
 
-static void idt_init()
-{
+static void idt_init() {
     idt_descriptor.limit = sizeof(idt) - 1;
-    idt_descriptor.base = (uint32_t) &idt;
+    idt_descriptor.base = (uint32_t)&idt;
 
     memset(&idt, 0, sizeof(idt));
 
@@ -69,11 +67,12 @@ static void idt_init()
     outb(0x21, 0x01);
     outb(0xA1, 0x01);
     // initialization done
-    
+
     outb(0x21, 0xFF);  // mask (disable) interrupts
     outb(0xA1, 0xFF);  // mask (disable) interrupts
 
-    // python3 -c "[print(f'idt_set_entry({i}, isr{i}, 0x08, 0x8E);') for i in range(48)]"
+    // python3 -c "[print(f'idt_set_entry({i}, isr{i}, 0x08, 0x8E);') for i in
+    // range(48)]"
     idt_set_entry(0, isr0, 0x08, 0x8E);
     idt_set_entry(1, isr1, 0x08, 0x8E);
     idt_set_entry(2, isr2, 0x08, 0x8E);
@@ -126,8 +125,7 @@ static void idt_init()
     idt_flush(&idt_descriptor);
 }
 
-void irq_clear_mask(uint8_t line)
-{
+void irq_clear_mask(uint8_t line) {
     uint16_t port;
     uint8_t value;
 
@@ -141,8 +139,7 @@ void irq_clear_mask(uint8_t line)
     outb(port, value);
 }
 
-void descriptor_tables_init()
-{
+void descriptor_tables_init() {
     gdt_init();
     idt_init();
 }

@@ -1,11 +1,9 @@
 
 #include "stdio.h"
 
-int puts(const char* str)
-{
+int puts(const char* str) {
     char c;
-    while (c = *str++)
-    {
+    while (c = *str++) {
         putchar(c);
     }
 }

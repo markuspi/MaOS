@@ -2,13 +2,13 @@
 #include "kernel/common.h"
 
 void inline halt() {
-    asm volatile ("hlt");
+    asm volatile("hlt");
 }
 
 void inline nop() {
-    asm volatile ("nop");
+    asm volatile("nop");
 }
 
 void inline sti() {
-    asm volatile ("sti");
+    asm volatile("sti");
 }

@@ -1,19 +1,18 @@
 #pragma once
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
-typedef enum {
-    E_OK = 0,
-    E_NOMEM = -1
-} err_t;
+typedef enum { E_OK = 0, E_NOMEM = -1 } err_t;
 
 #define PACKED __attribute__((packed))
-#define PANIC(format, ...) kernel_panic(__FILE__, __LINE__, format, ##__VA_ARGS__)
-#define ASSERT(exp, args...)  if (!(exp)) PANIC("Assertion Error: (" #exp ") == false\n" args)
+#define PANIC(format, ...) \
+    kernel_panic(__FILE__, __LINE__, format, ##__VA_ARGS__)
+#define ASSERT(exp, args...) \
+    if (!(exp)) PANIC("Assertion Error: (" #exp ") == false\n" args)
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 #define ALIGN_BITS_DOWN(val, bits) ((val) & ~((1 << (bits)) - 1))
 

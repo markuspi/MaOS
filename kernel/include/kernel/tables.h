@@ -28,7 +28,6 @@ typedef struct {
     uint16_t base_high;
 } PACKED idt_entry_t;
 
-
 void descriptor_tables_init();
 void irq_clear_mask(uint8_t line);
 
