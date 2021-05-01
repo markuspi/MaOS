@@ -8,7 +8,7 @@ message("CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf32")
 enable_language(ASM_NASM)
 
-project(MaOS C)
+project(MaOS C CXX)
 
 add_subdirectory(libc)
 add_subdirectory(kernel)
