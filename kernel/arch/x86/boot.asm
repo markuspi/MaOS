@@ -23,6 +23,8 @@ boot_page_directory:
 boot_page_table:
     resb 4096 * 2
 boot_page_table_end:
+boot_special_table:
+    resb 4096
 stack_bottom:
     resb 16384  ; 16 KiB
 stack_top:
@@ -33,14 +35,20 @@ phys_page_directory: equ boot_page_directory - 0xC0000000
 phys_page_table: equ boot_page_table - 0xC0000000
 phys_page_table_end: equ boot_page_table_end - 0xC0000000
 phys_used_pages: equ boot_used_pages - 0xC0000000
+phys_special_table: equ boot_special_table - 0xC0000000
 
+global phys_page_directory
 global boot_page_directory
+global phys_page_table
 global boot_page_table
 global boot_page_table_end
 global boot_used_pages
+global boot_special_table
+global phys_special_table
 
 ; ENTRY FUNCTION
 section .multiboot_text
+maos_entry:
 global _start:function (_start.end - _start)
 _start:
 
@@ -70,8 +78,8 @@ _start:
     ; create a PDE for first 8MB starting at 0xC0000000 virtual, pointing to 0x00000000 physical
     ; setting flags 0 (Present), 1 (Read/Write)
     mov dword [phys_page_directory + 0], phys_page_table + 0b11  ; identity mapping
-    mov dword [phys_page_directory + 4 * 0x300], phys_page_table + 0x11  ; actual mapping
-    mov dword [phys_page_directory + 4 * 0x301], phys_page_table + 0x11 + 4096
+    mov dword [phys_page_directory + 4 * 0x300], phys_page_table + 0b11  ; actual mapping
+    mov dword [phys_page_directory + 4 * 0x301], phys_page_table + 0b11 + 4096
 
     ; store page directory location
     mov ecx, phys_page_directory

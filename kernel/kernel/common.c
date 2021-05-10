@@ -6,6 +6,8 @@
 
 #include "kernel/tty.h"
 
+uint32_t dbflags = 0xFFFF;
+
 static void print_line() {
     puts(
         "\n--------------------------------------------------------------------"

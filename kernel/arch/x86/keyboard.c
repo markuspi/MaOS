@@ -59,7 +59,7 @@ void keyboard_init() {
 
     send_command(0x20);  // read controller configuration byte
     conf = expect_data();
-    printf("Keyboard conf: %d\n", (uint32_t)conf);
+    // printf("Keyboard conf: %d\n", (uint32_t)conf);
     conf &= 0b10111100;  // clear bits 0, 1, 6
     send_command(0x60);  // store new config
     send_data(conf);

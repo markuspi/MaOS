@@ -2,10 +2,11 @@
 #include <stddef.h>
 
 #include "kernel/memory.h"
+#include "kernel/vm.h"
 
-void* kmalloc_extended(size_t sz, paddr_t* phys, bool page_aligned) {
-    size_t n_pages = PAGE_ALIGN(sz) / PAGE_SIZE;
-    return paging_alloc(n_pages, phys);
+void* kmalloc(size_t sz) {
+    size_t n_pages = PAGE_ALIGN(sz) >> PAGE_BITS;
+    return vm_alloc_kpages(n_pages);
 }
 
 void kfree(void* ptr) {

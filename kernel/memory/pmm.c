@@ -17,6 +17,8 @@ static paddr_t free_first;
 
 static pmm_state_t pmm_state = pmm_state_uninitialized;
 
+static void* init_mem = NULL;
+
 #define PMM_NUM_BUDDIES 7
 
 /**
@@ -37,25 +39,31 @@ void pmm_bootstrap() {
 
     uint32_t avail = managed_last - managed_first;
 
-    printf("RAM Bootstrapped. Usable Memory: 0x%08x ... 0x%08x\n",
-           managed_first, managed_last);
+    printf("RAM Bootstrapped. Usable Memory: 0x%08x ... 0x%08x\n", managed_first, managed_last);
     printf("%ud KiB (%ud MiB) of memory managed\n", avail >> 10, avail >> 20);
 
     pmm_state = pmm_state_steal;
 }
 
-void pmm_init() {
+size_t pmm_estimate_bytes_required() {
+    ASSERT(pmm_state == pmm_state_steal);
     uint32_t avail = managed_last - free_first;
     size_t n_frames = avail / PAGE_SIZE;
     size_t bytes_required = n_frames / 4;
+    return bytes_required;
+}
 
-    void* mem = kmalloc(bytes_required);
+void pmm_set_init_memory(void* mem) {
+    init_mem = mem;
+}
 
-    // kmalloc probably stole some pages, so recalculate memory
-    avail = managed_last - free_first;
-    n_frames = ALIGN_BITS_DOWN(avail / PAGE_SIZE, PMM_NUM_BUDDIES - 1 + 5);
+void pmm_init() {
+    ASSERT(init_mem != NULL);
+    free_first += pmm_estimate_bytes_required();
+    size_t avail = managed_last - free_first;
+    size_t n_frames = ALIGN_BITS_DOWN(avail / PAGE_SIZE, PMM_NUM_BUDDIES - 1 + 5);
 
-    buddies[0].data = mem;
+    buddies[0].data = init_mem;
     buddies[0].len = n_frames >> 5;
 
     for (size_t i = 1; i < PMM_NUM_BUDDIES; i++) {
@@ -69,10 +77,10 @@ void pmm_init() {
 
     buddy_base = free_first;
 
-    printf("PMM initialized. First buddy len: 0x%x, last buddy len: 0x%x\n",
-           buddies[0].len, buddies[PMM_NUM_BUDDIES - 1].len);
-    printf("Number of managed frames: 0x%x (%d KiB = %d MiB)\n", n_frames,
-           n_frames * 4, (n_frames * 4) >> 10);
+    printf("PMM initialized. First buddy len: 0x%x, last buddy len: 0x%x\n", buddies[0].len,
+           buddies[PMM_NUM_BUDDIES - 1].len);
+    printf("Number of managed frames: 0x%x (%d KiB = %d MiB)\n", n_frames, n_frames * 4,
+           (n_frames * 4) >> 10);
 
     pmm_state = pmm_state_buddy;
 }
@@ -87,8 +95,7 @@ static void mark_used(int level, size_t n_frames, size_t idx) {
     } else {
         capacity /= 2;
         mark_used(level - 1, MIN(n_frames, capacity), idx * 2);
-        mark_used(level - 1, n_frames > capacity ? n_frames - capacity : 0,
-                  idx * 2 + 1);
+        mark_used(level - 1, n_frames > capacity ? n_frames - capacity : 0, idx * 2 + 1);
     }
 }
 
@@ -126,8 +133,7 @@ static err_t pmm_alloc_buddy(size_t n_frames, paddr_t* addr) {
             mark_used(i, n_frames, idx);
 
             *addr = buddy_base + (PAGE_SIZE << i) * idx;
-            printf("Buddy allocated %d frame(s): %d %d -> 0x%08x\n", n_frames,
-                   i, idx, *addr);
+            printf("Buddy allocated %d frame(s): %d %d -> 0x%08x\n", n_frames, i, idx, *addr);
             return E_OK;
         }
     }
@@ -152,6 +158,8 @@ void pmm_free(size_t n_frames, paddr_t addr) {
     if (addr < buddy_base) {
         PANIC("Cannot free stolen pages");
     }
+
+    DEBUG(DB_MEMORY, "PMM FREE\n");
 
     size_t frame_no = (addr - buddy_base) / PAGE_SIZE;
     int level = log2(n_frames);
