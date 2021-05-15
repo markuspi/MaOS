@@ -20,10 +20,16 @@ void kernel_main() {
 
     keyboard_init();
 
-    printf("Hello, World!\n");
+    printf("Hello, World!!\n");
 
-    kmalloc(12);
-    kmalloc(2090);
+    void* x = vm_alloc_kpages(1);
+    void* y = vm_alloc_kpages(1);
+    vm_debug();
+    vm_free_kpages(1, x);
+    vm_debug();
+    vm_free_kpages(1, y);
+    vm_debug();
+    // void* z = vm_alloc_kpages(1);
 
     printf("Done!\n");
 }

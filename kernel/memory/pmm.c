@@ -28,7 +28,6 @@ static void* init_mem = NULL;
 
 static bitset32_t buddies[PMM_NUM_BUDDIES];
 
-static size_t buddy_len;
 static paddr_t buddy_base;
 
 void pmm_bootstrap() {
@@ -75,12 +74,13 @@ void pmm_init() {
         bitset_fill(&buddies[i], (i == PMM_NUM_BUDDIES - 1) ? 0xFFFFFFFF : 0);
     }
 
-    buddy_base = free_first;
+    buddy_base = PAGE_ALIGN(free_first);
 
-    printf("PMM initialized. First buddy len: 0x%x, last buddy len: 0x%x\n", buddies[0].len,
-           buddies[PMM_NUM_BUDDIES - 1].len);
-    printf("Number of managed frames: 0x%x (%d KiB = %d MiB)\n", n_frames, n_frames * 4,
-           (n_frames * 4) >> 10);
+    DEBUG(DB_MEMORY, "PMM initialized. First buddy len: 0x%x, last buddy len: 0x%x\n",
+          buddies[0].len, buddies[PMM_NUM_BUDDIES - 1].len);
+    DEBUG(DB_MEMORY, "Buddy base: 0x%08x\n", buddy_base);
+    DEBUG(DB_MEMORY, "Number of managed frames: 0x%x (%d KiB = %d MiB)\n", n_frames, n_frames * 4,
+          (n_frames * 4) >> 10);
 
     pmm_state = pmm_state_buddy;
 }
@@ -159,7 +159,7 @@ void pmm_free(size_t n_frames, paddr_t addr) {
         PANIC("Cannot free stolen pages");
     }
 
-    DEBUG(DB_MEMORY, "PMM FREE\n");
+    DEBUG(DB_MEMORY, "PMM FREE 0x%08x\n", addr);
 
     size_t frame_no = (addr - buddy_base) / PAGE_SIZE;
     int level = log2(n_frames);

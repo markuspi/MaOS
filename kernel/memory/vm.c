@@ -214,6 +214,8 @@ paddr_t vm_unmap_page(vaddr_t vaddr) {
     size_t dir_idx = vaddr >> 22;
     size_t tab_idx = (vaddr >> 12) & 0x3FF;
 
+    DEBUG(DB_MEMORY, "Unmapping page 0x%08x (DIR=%d, TAB=%d)\n", vaddr, dir_idx, tab_idx);
+
     pte_t* tab_entry = &current_as->tables[dir_idx]->entries[tab_idx];
     paddr_t paddr = tab_entry->frame << PAGE_BITS;
     tab_entry->present = 0;
@@ -287,6 +289,9 @@ void vm_return_pages(vm_free_bucket_t** buckets, size_t pages, size_t pageno) {
     vm_free_bucket_t* item = vm_item();
     ASSERT(item);
 
+    item->pageno = pageno;
+    item->size = pages;
+
     vm_free_bucket_t* node = *buckets;
 
     if (node) {
@@ -310,13 +315,23 @@ void vm_return_pages(vm_free_bucket_t** buckets, size_t pages, size_t pageno) {
 }
 
 void vm_free_kpages(size_t pages, void* addr) {
-    size_t pageno = (size_t)pageno >> PAGE_BITS;
+    size_t pageno = (size_t)addr >> PAGE_BITS;
     paddr_t paddr;
 
-    for (size_t i = pages - 1; i >= 0; i--) {
-        paddr = vm_unmap_page((vaddr_t)addr + i * PAGE_SIZE);
+    for (size_t i = 0; i < pages; i++) {
+        size_t j = pages - i - 1;
+        paddr = vm_unmap_page((vaddr_t)addr + j * PAGE_SIZE);
     }
 
     vm_return_pages(&vm_kernel_buckets, pages, pageno);
     pmm_free(pages, paddr);
+}
+
+void vm_debug() {
+    vm_free_bucket_t* node = vm_kernel_buckets;
+    DEBUG(DB_MEMORY, "VM DEBUG:\n");
+    while (node) {
+        DEBUG(DB_MEMORY, "* %08x (%08x)\n", node->pageno, node->size);
+        node = node->next;
+    }
 }
