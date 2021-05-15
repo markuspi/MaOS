@@ -6,26 +6,21 @@
 #include "string.h"
 
 #ifdef __is_libk
-#include "kernel/memory.h"
-
-void* malloc(size_t size) {
-    printf("malloc: %d bytes\n", size);
-    return kmalloc(size);
+#include "kernel/vm.h"
+int liballoc_lock() {
+    return 0;
 }
 
-void free(void* ptr) {
-    kfree(ptr);
+int liballoc_unlock() {
+    return 0;
 }
-#else
-// TODO
+
+void* liballoc_alloc(int npages) {
+    return vm_alloc_kpages(npages);
+}
+
+int liballoc_free(void* ptr, int npages) {
+    vm_free_kpages(npages, ptr);
+    return 0;
+}
 #endif
-
-void* calloc(size_t nmemb, size_t size) {
-    size_t bytes = nmemb * size;
-    void* ptr = malloc(bytes);
-    if (ptr == NULL) {
-        return NULL;
-    }
-    memset(ptr, 0, bytes);
-    return ptr;
-}

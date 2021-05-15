@@ -228,6 +228,8 @@ void* vm_alloc_kpages(size_t pages) {
     size_t pageno;
     err_t err;
 
+    DEBUG(DB_MEMORY, "Allocating %d virtual pages\n", pages);
+
     err = pmm_alloc(pages, &paddr);
     ASSERT(!err, "Out of physical memory");
     err = vm_reserve_pages(&vm_kernel_buckets, pages, &pageno);

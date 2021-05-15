@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "kernel/common.h"
@@ -22,14 +23,9 @@ void kernel_main() {
 
     printf("Hello, World!!\n");
 
-    void* x = vm_alloc_kpages(1);
-    void* y = vm_alloc_kpages(1);
-    vm_debug();
-    vm_free_kpages(1, x);
-    vm_debug();
-    vm_free_kpages(1, y);
-    vm_debug();
-    // void* z = vm_alloc_kpages(1);
+    char* x = malloc(10);
+    x[0] = 'a';
+    free(x);
 
     printf("Done!\n");
 }
