@@ -12,3 +12,7 @@ void inline nop() {
 void inline sti() {
     asm volatile("sti");
 }
+
+void inline cli() {
+    asm volatile("cli");
+}

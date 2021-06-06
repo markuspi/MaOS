@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-typedef enum { E_OK = 0, E_NOMEM = -1 } err_t;
+typedef enum { E_OK = 0, E_NOMEM = -1, E_DEVICE = -2 } err_t;
 
 #define KiB 1024
 #define MiB 0x100000
@@ -29,8 +29,17 @@ typedef uint32_t paddr_t;
 typedef uint32_t vaddr_t;
 
 void halt();
+
+/// enable interrupts
 void sti();
+
+/// disable interrupts
+void cli();
+
+/// NOP operation, do nothing
 void nop();
+
+/// `n` NOP operations
 void nopN(size_t n);
 
 void kernel_panic(const char* filename, int line, const char* format, ...);
