@@ -1,8 +1,27 @@
 #include "kernel/serial.h"
 
+#include "kernel/port.h"
+#include "kernel/isr.h"
+#include "kernel/tables.h"
+
+/*
+ * https://wiki.osdev.org/Serial_Ports
+ */
+
 static uint16_t serial_active_port = 0;
 
+void serial_handler(uint8_t  int_no) {
+    char c = inb(serial_active_port);
+    serial_putchar(c);
+}
+
+int serial_rx_data_ready() {
+    return inb(COM1 + 5) & 0x01;
+}
+
 err_t serial_init(uint16_t port) {
+    irq_register_handler(IRQ4, serial_handler);
+
     serial_active_port = 0;
     outb(port + 1, 0x00);  // Disable all interrupts
     outb(port + 3, 0x80);  // Enable DLAB (set baud rate divisor)
@@ -20,6 +39,11 @@ err_t serial_init(uint16_t port) {
 
     serial_active_port = port;
     outb(port + 4, 0x0F);  // Enable normal operation mode
+    outb(port + 1, 0x01);  // Enable interrupts for DATA_AVAILABLE
+
+    irq_clear_mask(4);
+    while(serial_rx_data_ready()) inb(port);
+
     return E_OK;
 }
 

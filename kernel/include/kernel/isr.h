@@ -11,6 +11,10 @@ typedef struct {
     uint32_t eip;
 } PACKED registers_t;
 
+typedef enum {
+    IRQ0 = 32, IRQ1, IRQ2, IRQ3, IRQ4, IRQ5, IRQ6
+} inter_t;
+
 typedef void (*isr_t)(uint8_t);
 
 void irq_register_handler(uint8_t int_no, isr_t handler);
