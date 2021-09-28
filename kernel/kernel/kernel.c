@@ -8,18 +8,22 @@
 #include "kernel/hello.h"
 #include "kernel/keyboard.h"
 #include "kernel/memory.h"
+#include "kernel/serial.h"
 #include "kernel/tables.h"
 #include "kernel/tty.h"
 #include "kernel/vm.h"
+#include "kernel/timer.h"
 
 void kernel_main() {
     tty_init();
+    serial_init(COM1);
     descriptor_tables_init();
     pmm_bootstrap();
     vm_init();
     pmm_init();
 
     keyboard_init();
+    timer_init();
 
     printf("Hello, World!!\n");
 
@@ -28,4 +32,6 @@ void kernel_main() {
     free(x);
 
     printf("Done!\n");
+
+    serial_putchar('#');
 }

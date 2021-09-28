@@ -1,4 +1,5 @@
 #if defined(__is_libk)
+#include <kernel/serial.h>
 #include <kernel/tty.h>
 #endif
 
@@ -7,6 +8,7 @@
 int putchar(int c) {
 #if defined(__is_libk)
     tty_putchar((char)c);
+    serial_putchar((char)c);
 #else
     // TODO implement putchar for userspace
 #endif
