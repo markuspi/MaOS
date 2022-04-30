@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "kernel/common.h"
-#include "kernel/hello.h"
 #include "kernel/keyboard.h"
 #include "kernel/memory.h"
 #include "kernel/serial.h"

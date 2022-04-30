@@ -1,7 +1,6 @@
 
 #include "kernel/keyboard.h"
 
-#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -50,7 +49,7 @@ void keyboard_init() {
     uint8_t tmp;
     uint8_t conf;
 
-    irq_register_handler(33, keyboard_handler);
+    irq_register_handler(IRQ1, keyboard_handler);
     irq_clear_mask(1);  // enable interrupts for IRQ1
 
     send_command(0xAD);     // disable first PS/2 port

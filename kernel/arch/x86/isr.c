@@ -70,6 +70,6 @@ void isr_handler(registers_t regs) {
     }
 }
 
-void irq_register_handler(uint8_t int_no, isr_t handler) {
+void irq_register_handler(interrupt_t int_no, isr_t handler) {
     interrupt_handlers[int_no] = handler;
 }

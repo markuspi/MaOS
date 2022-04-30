@@ -11,6 +11,9 @@ static dt_descriptor_t gdt_descriptor;
 static idt_entry_t idt[256];
 static dt_descriptor_t idt_descriptor;
 
+/*
+ * Add a new entry to the Global Descriptor Table
+ */
 static void gdt_set_entry(int num, uint32_t base, uint32_t limit,
                           uint8_t access, uint8_t flags) {
     gdt[num].base_low = (base & 0xFFFF);
@@ -24,6 +27,9 @@ static void gdt_set_entry(int num, uint32_t base, uint32_t limit,
     gdt[num].access = access;
 }
 
+/*
+ * Initialize Global Descriptor Table
+ */
 static void gdt_init() {
     gdt_descriptor.limit = sizeof(gdt) - 1;
     gdt_descriptor.base = (uint32_t)&gdt;

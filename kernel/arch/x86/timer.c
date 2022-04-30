@@ -13,7 +13,7 @@ void timer_handler(uint8_t int_no) {
 }
 
 void timer_init() {
-    irq_register_handler(32, timer_handler);
+    irq_register_handler(IRQ0, timer_handler);
 
     // set reload value to 65535, resulting in a frequency of 18.2065 Hz
     uint16_t reload_value = 0xFFFF;

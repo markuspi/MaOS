@@ -12,6 +12,8 @@ typedef enum { E_OK = 0, E_NOMEM = -1, E_DEVICE = -2 } err_t;
 #define DB_MEMORY 0x0001
 
 #define PACKED __attribute__((packed))
+#define UNUSED __attribute__((unused))
+
 #define PANIC(format, ...) kernel_panic(__FILE__, __LINE__, format, ##__VA_ARGS__)
 #define ASSERT(exp, args...) (exp ? 0 : PANIC("Assertion Error: (" #exp ") == false\n" args))
 #define DEBUG(d, ...) ((dbflags & (d)) ? printf(__VA_ARGS__) : 0)
