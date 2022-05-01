@@ -1,23 +1,15 @@
 
 #include <bitset.h>
-#include <stdint.h>
 #include <stdio.h>
 
 #include "kernel/common.h"
 #include "kernel/memory.h"
-
-extern char _kernel_end_phys;
+#include "kernel/linkervars.h"
 
 /// start of managed memory region, page-aligned
 static paddr_t managed_first;
 /// end of managed memory region, page-aligned
 static paddr_t managed_last;
-/// first free address in stealing phase
-static paddr_t free_first;
-
-static pmm_state_t pmm_state = pmm_state_uninitialized;
-
-static void* init_mem = NULL;
 
 #define PMM_NUM_BUDDIES 7
 
@@ -27,62 +19,65 @@ static void* init_mem = NULL;
  */
 
 static bitset32_t buddies[PMM_NUM_BUDDIES];
-
 static paddr_t buddy_base;
 
-void pmm_bootstrap() {
-    managed_first = PAGE_ALIGN((uint32_t)&_kernel_end_phys);
-    managed_last = 130 * 1024 * 1024;  // TODO: use actual value from bootloader
-
-    free_first = managed_first;
-
-    uint32_t avail = managed_last - managed_first;
-
-    printf("RAM Bootstrapped. Usable Memory: 0x%08x ... 0x%08x\n", managed_first, managed_last);
-    printf("%ud KiB (%ud MiB) of memory managed\n", avail >> 10, avail >> 20);
-
-    pmm_state = pmm_state_steal;
-}
-
-size_t pmm_estimate_bytes_required() {
-    ASSERT(pmm_state == pmm_state_steal);
-    uint32_t avail = managed_last - free_first;
+static size_t pmm_estimate_bytes_required(size_t avail) {
     size_t n_frames = avail / PAGE_SIZE;
+    // each frame takes 2 bits -> 4 frames per byte
     size_t bytes_required = n_frames / 4;
     return bytes_required;
 }
 
-void pmm_set_init_memory(void* mem) {
-    init_mem = mem;
+void* pmm_phys2virtual(paddr_t addr) {
+    return (void*) (addr + (paddr_t) &KERNEL_OFFSET);
+}
+
+void* pmm_get_border() {
+    return pmm_phys2virtual(managed_first);
 }
 
 void pmm_init() {
-    ASSERT(init_mem != NULL);
-    free_first += pmm_estimate_bytes_required();
-    size_t avail = managed_last - free_first;
-    size_t n_frames = ALIGN_BITS_DOWN(avail / PAGE_SIZE, PMM_NUM_BUDDIES - 1 + 5);
+    // this function will be called with boot pse page mapping,
+    // so we have 4 MiB to play with
 
-    buddies[0].data = init_mem;
-    buddies[0].len = n_frames >> 5;
+    paddr_t avail_first = (paddr_t) &KERNEL_END_PHYS;
+    managed_last = 130 * 1024 * 1024;  // TODO: use actual value from bootloader
 
+    size_t avail = managed_last - avail_first;
+    size_t required = pmm_estimate_bytes_required(avail);
+
+    DEBUG(DB_MEMORY, "[PMM] Available RAM: %ud KiB (%ud MiB)\n", avail >> 10, avail >> 20);
+    DEBUG(DB_MEMORY, "[PMM] Requires %ud bytes for buddies\n", required);
+
+    managed_first = PAGE_ALIGN(avail_first + required);
+    size_t managed = managed_last - managed_first;
+
+    // ensure that this region is still mapped
+    ASSERT(managed_first <= (paddr_t) &KERNEL_BOOT_MAPPED);
+
+    DEBUG(DB_MEMORY, "[PMM] Buddies live in 0x%08x ... 0x%08x\n", avail_first, managed_first);
+
+    size_t n_frames = ALIGN_BITS_DOWN(managed / PAGE_SIZE, PMM_NUM_BUDDIES - 1 + 5);
+
+    // [avail_first; managed_first - 1] is now exclusively for our buddies
+    buddies[0].data = pmm_phys2virtual(avail_first);
+    buddies[0].len = n_frames / 32; // 32 bits per dword
+
+    // initialize lower-level buddies
     for (size_t i = 1; i < PMM_NUM_BUDDIES; i++) {
         buddies[i].len = n_frames >> (5 + i);
         buddies[i].data = buddies[i - 1].data + buddies[i - 1].len;
     }
 
-    for (size_t i = 0; i < PMM_NUM_BUDDIES; i++) {
-        bitset_fill(&buddies[i], (i == PMM_NUM_BUDDIES - 1) ? 0xFFFFFFFF : 0);
+    for (size_t i = 0; i < PMM_NUM_BUDDIES - 1; i++) {
+        bitset_fill(&buddies[i], 0);
     }
+    bitset_fill(&buddies[PMM_NUM_BUDDIES - 1], 0xFFFFFFFF);
 
-    buddy_base = PAGE_ALIGN(free_first);
+    buddy_base = managed_first;
 
-    DEBUG(DB_MEMORY, "PMM initialized. First buddy len: 0x%x, last buddy len: 0x%x\n",
-          buddies[0].len, buddies[PMM_NUM_BUDDIES - 1].len);
-    DEBUG(DB_MEMORY, "Buddy base: 0x%08x\n", buddy_base);
-    DEBUG(DB_MEMORY, "Number of managed frames: 0x%x (%d KiB = %d MiB)\n", n_frames, n_frames * 4,
-          (n_frames * 4) >> 10);
-
-    pmm_state = pmm_state_buddy;
+    DEBUG(DB_MEMORY, "[PMM] RAM Bootstrapped. Usable Memory: 0x%08x ... 0x%08x\n", managed_first, managed_last);
+    DEBUG(DB_MEMORY, "[PMM] %ud KiB (%ud MiB) of memory managed (%ud frames)\n", managed >> 10, managed >> 20, n_frames);
 }
 
 static void mark_used(int level, size_t n_frames, size_t idx) {
@@ -97,21 +92,6 @@ static void mark_used(int level, size_t n_frames, size_t idx) {
         mark_used(level - 1, MIN(n_frames, capacity), idx * 2);
         mark_used(level - 1, n_frames > capacity ? n_frames - capacity : 0, idx * 2 + 1);
     }
-}
-
-static err_t pmm_alloc_steal(size_t n_frames, paddr_t* addr) {
-    size_t size = n_frames * PAGE_SIZE;
-
-    if (free_first + size > managed_last) {
-        return E_NOMEM;
-    }
-
-    *addr = free_first;
-    free_first += size;
-
-    printf("Stole %d frames at 0x%08x\n", n_frames, *addr);
-
-    return E_OK;
 }
 
 /* https://stackoverflow.com/a/9612244 */
@@ -133,7 +113,7 @@ static err_t pmm_alloc_buddy(size_t n_frames, paddr_t* addr) {
             mark_used(i, n_frames, idx);
 
             *addr = buddy_base + (PAGE_SIZE << i) * idx;
-            printf("Buddy allocated %d frame(s): %d %d -> 0x%08x\n", n_frames, i, idx, *addr);
+            DEBUG(DB_MEMORY, "[PMM] Buddy allocated %d frame(s): %d %d -> 0x%08x\n", n_frames, i, idx, *addr);
             return E_OK;
         }
     }
@@ -143,15 +123,7 @@ static err_t pmm_alloc_buddy(size_t n_frames, paddr_t* addr) {
 }
 
 err_t pmm_alloc(size_t n_frames, paddr_t* addr) {
-    switch (pmm_state) {
-        case pmm_state_buddy:
-            return pmm_alloc_buddy(n_frames, addr);
-        case pmm_state_steal:
-            return pmm_alloc_steal(n_frames, addr);
-        default:
-            PANIC("Invalid pmm state %d", pmm_state);
-            break;
-    }
+    return pmm_alloc_buddy(n_frames, addr);
 }
 
 void pmm_free(size_t n_frames, paddr_t addr) {

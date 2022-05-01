@@ -10,17 +10,13 @@
 #define PAGE_MASK (PAGE_SIZE - 1)
 #define PAGE_ALIGN(addr) ALIGN_BITS_UP(addr, PAGE_BITS)
 
-typedef enum { pmm_state_uninitialized, pmm_state_steal, pmm_state_buddy } pmm_state_t;
-
 typedef enum { paging_state_uninitialized, paging_state_steal, paging_state_active } paging_state_t;
 
-void pmm_bootstrap();
 void pmm_init();
 err_t pmm_alloc(size_t n_frames, paddr_t* addr);
 void pmm_free(size_t n_frames, paddr_t addr);
 void pmm_debug();
-size_t pmm_estimate_bytes_required();
-void pmm_set_init_memory(void* mem);
+void* pmm_get_border();
 
 void* kmalloc(size_t sz);
 void kfree(void* ptr);

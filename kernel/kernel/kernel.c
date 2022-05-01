@@ -17,9 +17,8 @@ void kernel_main() {
     tty_init();
     descriptor_tables_init();
     serial_init(COM1);
-    pmm_bootstrap();
-    vm_init();
     pmm_init();
+    vm_init();
 
     keyboard_init();
     timer_init();

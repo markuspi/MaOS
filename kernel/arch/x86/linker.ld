@@ -1,26 +1,20 @@
 ENTRY(_start)
 
-KERNEL_START  = 0x00100000;
 KERNEL_OFFSET = 0xC0000000;
+KERNEL_BOOT_MAPPED = 0xC0800000;
 
 SECTIONS
 {
-    . = KERNEL_START;
+    . = 0x00100000;
+    KERNEL_START_PHYS = .;
+    KERNEL_START = . + KERNEL_OFFSET;
     .multiboot.text :
     {
         *(.multiboot)
         *(.multiboot_text)
     }
 
-    .multiboot.bss ALIGN(4K) :
-    {
-        *(.multiboot_bss)
-    }
-
     . += KERNEL_OFFSET;
-    _kernel_start = .;
-    _kernel_start_phys = . - KERNEL_OFFSET;
-
     .text ALIGN(4K) : AT(ADDR(.text) - KERNEL_OFFSET)
     {
         *(.text)
@@ -42,7 +36,7 @@ SECTIONS
         *(.bss)
     }
 
-    _kernel_end = .;
-    _kernel_end_phys = . - KERNEL_OFFSET;
+    KERNEL_END = .;
+    KERNEL_END_PHYS = . - KERNEL_OFFSET;
 
 }
