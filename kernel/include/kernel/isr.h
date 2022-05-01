@@ -5,6 +5,7 @@
 #include "kernel/common.h"
 
 typedef struct {
+    uint32_t dummy1, dummy2; // values that are pushed by the isr handler
     uint32_t ds;
     uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;  // Pushed by pusha
     uint32_t int_no, err_code;  // interrupt number, error code

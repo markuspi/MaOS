@@ -25,10 +25,6 @@ void kernel_main() {
 
     printf("Hello, World!!\n");
 
-    char* x = malloc(10);
-    x[0] = 'a';
-    free(x);
-
     printf("Done!\n");
 
     serial_putchar('#');

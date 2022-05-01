@@ -18,7 +18,13 @@ isr%1:
 
 extern isr_handler
 isr_common_stub:
-    pusha  ; save all registers
+    pushad  ; save all registers
+
+    mov eax, [esp + 40] ; push old eip again
+    push eax
+
+    push ebp
+    mov ebp, esp
 
     mov ax, ds  ; save segment
     push eax
@@ -37,7 +43,9 @@ isr_common_stub:
     mov fs, ax
     mov gs, ax
 
-    popa
+    add esp, 8  ; pop old eip and ebp
+
+    popad
     add esp, 8  ; pop interrupt number and error code
     sti
     iret
