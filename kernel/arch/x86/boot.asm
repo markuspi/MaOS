@@ -48,9 +48,9 @@ KERNEL_BSS_ZERO_END:
 phys_boot_page_directory equ (KERNEL_BOOT_PAGE_DIRECTORY - VM_OFFSET)
 
 ; ENTRY FUNCTION
-section .multiboot_text
-global _start:function
-_start:
+section .text
+global maos_start:function
+maos_start:
     mov eax, VM_OFFSET
 
     ; fill page directory and page tables with zeros
@@ -89,9 +89,9 @@ _start:
     mov cr0, ecx
 
     ; long jump
-    jmp 0x8:paged
+    lea ecx, [paged]
+    jmp ecx
 
-section .text
 paged:
     ; at this point, paging is enabled
 
