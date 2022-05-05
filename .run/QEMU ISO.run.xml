@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="QEMU ISO" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="-no-reboot -no-shutdown -cdrom $CMakeCurrentProductFile$" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="MaOS" TARGET_NAME="maos.iso" CONFIG_NAME="Debug-i686-elf" RUN_PATH="/usr/bin/qemu-system-i386">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="QEMU Debug" type="com.jetbrains.cidr.embedded.customgdbserver.type" factoryName="com.jetbrains.cidr.embedded.customgdbserver.factory" PROGRAM_PARAMS="-no-reboot -no-shutdown -s -S -kernel $CMakeCurrentProductFile$" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="MaOS" TARGET_NAME="kernel" CONFIG_NAME="Debug-i686-elf" version="1" RUN_TARGET_PROJECT_NAME="MaOS" RUN_TARGET_NAME="kernel">
+    <custom-gdb-server version="1" gdb-connect="localhost:1234" executable="qemu-system-i386" warmup-ms="100" download-type="NONE" reset-cmd="" reset-type="NEVER">
+      <debugger kind="GDB" isBundled="true" />
+    </custom-gdb-server>
+    <method v="2">
+      <option name="CLION.COMPOUND.BUILD" enabled="true" />
+    </method>
+  </configuration>
+</component>
