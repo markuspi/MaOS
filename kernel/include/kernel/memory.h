@@ -12,7 +12,7 @@
 
 typedef enum { paging_state_uninitialized, paging_state_steal, paging_state_active } paging_state_t;
 
-void pmm_init();
+void pmm_init(paddr_t upper_bound);
 err_t pmm_alloc(size_t n_frames, paddr_t* addr);
 void pmm_free(size_t n_frames, paddr_t addr);
 void pmm_debug();

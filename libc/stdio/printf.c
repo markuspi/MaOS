@@ -117,6 +117,10 @@ int vprintf(const char* format, va_list args) {
             format++;
             int32_t num = va_arg(args, int32_t);
             print_base(num, 16, false, pad_len, pad_char);
+        } else if (*format == 'b') {
+            format++;
+            int32_t num = va_arg(args, int32_t);
+            print_base(num, 2, false, pad_len, pad_char);
         }
     }
 

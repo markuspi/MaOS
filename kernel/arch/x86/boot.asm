@@ -1,7 +1,8 @@
 ; Declare constants for the multiboot header.
 MB_ALIGN  equ  1 << 0            ; align loaded modules on page boundaries
 MB_MEMINFO  equ  1 << 1            ; provide memory map
-MB_FLAGS   equ  MB_ALIGN | MB_MEMINFO ; this is the Multiboot 'flag' field
+MB_GRAPHICS equ  1 << 2
+MB_FLAGS   equ  MB_ALIGN | MB_MEMINFO | MB_GRAPHICS ; this is the Multiboot 'flag' field
 MB_MAGIC    equ  0x1BADB002        ; 'magic number' lets bootloader find the header
 MB_CHECKSUM equ -(MB_MAGIC + MB_FLAGS)   ; checksum of above, to prove we are multiboot
 
@@ -28,6 +29,12 @@ align 4
 	dd MB_MAGIC
 	dd MB_FLAGS
 	dd MB_CHECKSUM
+    dd 0, 0, 0, 0, 0 ; unused
+    dd 0 ; linear graphics mode
+    dd 640 ; preferred width
+    dd 400 ; preferred height
+    dd 24 ; preferred depth
+
 
 section .bss
 align 4096
@@ -51,8 +58,6 @@ phys_boot_page_directory equ (KERNEL_BOOT_PAGE_DIRECTORY - VM_OFFSET)
 section .text
 global maos_start:function
 maos_start:
-    mov eax, VM_OFFSET
-
     ; fill page directory and page tables with zeros
     mov edi, (KERNEL_BSS_ZERO_START - VM_OFFSET)
     mov ecx, (KERNEL_BSS_ZERO_END - VM_OFFSET)
@@ -104,6 +109,9 @@ paged:
 
     ; set up the stack
     mov esp, stack_top
+
+    add ebx, VM_OFFSET
+    push ebx
 
     extern kernel_main
     call kernel_main

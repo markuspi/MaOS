@@ -36,12 +36,12 @@ void* pmm_get_border() {
     return pmm_phys2virtual(managed_first);
 }
 
-void pmm_init() {
+void pmm_init(paddr_t upper_bound) {
     // this function will be called with boot pse page mapping,
     // so we have 4 MiB to play with
 
     paddr_t avail_first = (paddr_t) &KERNEL_END_PHYS;
-    managed_last = 130 * 1024 * 1024;  // TODO: use actual value from bootloader
+    managed_last = upper_bound;
 
     size_t avail = managed_last - avail_first;
     size_t required = pmm_estimate_bytes_required(avail);
