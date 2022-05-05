@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "types.h"
+
 typedef enum { E_OK = 0, E_NOMEM = -1, E_DEVICE = -2 } err_t;
 
 #define KiB 1024

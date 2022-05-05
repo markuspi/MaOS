@@ -6,31 +6,30 @@
 
 #include "stdio.h"
 
-#define printf_try(var, expr) \
-    if ((var = (expr)) < 0) { \
-        return var;           \
-    }
+#define printf_try(expr)    \
+    {                       \
+        int error = (expr); \
+        if (error < 0) {    \
+            return error;   \
+        }                   \
+    } do {} while(false)
 
 static const char* hexchars = "0123456789ABCDEF";
 
 static int print(const char* buf, size_t len) {
-    int error;
-
     for (size_t i = 0; i < len; i++) {
-        printf_try(error, putchar(buf[i]));
+        printf_try(putchar(buf[i]));
     }
 
     return (int)len;
 }
 
-static int print_base(int32_t num, int base, bool sig, int pad_len,
-                      char pad_char) {
+static int print_base(int32_t num, int base, bool sig, int pad_len, char pad_char) {
     char buffer[15];
     uint32_t unum;
-    int error;
 
     if (sig && num < 0) {
-        printf_try(error, putchar('-'));
+        printf_try(putchar('-'));
         pad_len--;
         unum = (uint32_t)-num;
     } else {
@@ -45,7 +44,7 @@ static int print_base(int32_t num, int base, bool sig, int pad_len,
     }
 
     while (--pad_len > i) {
-        printf_try(error, putchar(pad_char));
+        printf_try(putchar(pad_char));
     }
 
     for (int j = i; j >= 0; j--) {
@@ -65,7 +64,6 @@ int printf(const char* format, ...) {
 
 int vprintf(const char* format, va_list args) {
     size_t written = 0;
-    int error;
 
     while (*format != '\0') {
         if (format[0] != '%' || format[1] == '%') {
@@ -74,7 +72,7 @@ int vprintf(const char* format, va_list args) {
             while (format[amount] && format[amount] != '%') {
                 amount++;
             }
-            printf_try(error, print(format, amount));
+            printf_try(print(format, amount));
             format += amount;
             written += amount;
             continue;
@@ -106,10 +104,10 @@ int vprintf(const char* format, va_list args) {
             const char* str = va_arg(args, const char*);
             size_t len = strlen(str);
             while (pad_len > len) {
-                printf_try(error, putchar(pad_char));
+                printf_try(putchar(pad_char));
                 pad_len--;
             }
-            printf_try(error, print(str, len));
+            printf_try(print(str, len));
             written += len;
         } else if (*format == 'd') {
             format++;
@@ -122,5 +120,5 @@ int vprintf(const char* format, va_list args) {
         }
     }
 
-    return written;
+    return (int) written;
 }

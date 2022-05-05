@@ -1,8 +1,11 @@
+#include "kernel/timer.h"
+
 #include <stdio.h>
 
 #include "kernel/isr.h"
 #include "kernel/port.h"
 #include "kernel/tables.h"
+#include "kernel/types.h"
 
 /*
  * https://wiki.osdev.org/Programmable_Interval_Timer
