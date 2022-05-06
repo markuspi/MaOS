@@ -24,13 +24,13 @@ static int print(const char* buf, size_t len) {
     return (int)len;
 }
 
-static int print_base(int32_t num, int base, bool sig, int pad_len, char pad_char) {
-    char buffer[15];
+static int print_int(int32_t num, int base, bool sig, int width, char pad_char) {
+    char buffer[15]; // buffer[0] contains right-most char!
     uint32_t unum;
 
     if (sig && num < 0) {
         printf_try(putchar('-'));
-        pad_len--;
+        width--;
         unum = (uint32_t)-num;
     } else {
         unum = (uint32_t)num;
@@ -38,18 +38,63 @@ static int print_base(int32_t num, int base, bool sig, int pad_len, char pad_cha
 
     int i;
     for (i = 0; i < 15; i++) {
-        buffer[i] = (char)hexchars[unum % base];
+        buffer[i] = hexchars[unum % base];
         if (unum < base) break;
         unum /= base;
     }
 
-    while (--pad_len > i) {
+    while (--width > i) {
         printf_try(putchar(pad_char));
     }
 
     for (int j = i; j >= 0; j--) {
         putchar(buffer[j]);
     }
+}
+
+static int print_double(double num, int width, int precision, char pad_char) {
+    if (precision > 10) {
+        precision = 10;
+    }
+
+    if (num < 0) {
+        printf_try(putchar('-'));
+        width--;
+        num = -num;
+    }
+
+    // print integer part
+    print_int((int32_t) num, 10, false, width - precision - 1, pad_char);
+
+    putchar('.');
+
+    // print decimal part
+    double num_shifted = num;
+    for (int i = 1; i <= precision; i++) {
+        num_shifted *= 10;
+        int num_int = (int) num_shifted;
+        int digit = num_int % 10;
+
+        // rounding of last digit
+        if (i == precision && num_shifted - num_int > 0.5 - 1e-9) {
+            digit++;
+        }
+
+        putchar(hexchars[digit]);
+    }
+}
+
+/// parses an unsigned integer and advances the char pointer
+static int parse_uint(const char** str) {
+    const char* x = *str;
+    int n = 0;
+    while (*x >= '0' && *x <= '9') {
+        int digit = *x - '0';
+        n = (n * 10) + digit;
+        x++;
+    }
+    *str = x;
+    return n;
 }
 
 int printf(const char* format, ...) {
@@ -80,7 +125,6 @@ int vprintf(const char* format, va_list args) {
 
         format++;
         bool sig = true;
-        int pad_len = 0;
         char pad_char = ' ';
 
         if (*format == '0') {
@@ -88,10 +132,12 @@ int vprintf(const char* format, va_list args) {
             format++;
         }
 
-        while (*format >= '0' && *format <= '9') {
-            int digit = *format - '0';
-            pad_len = (pad_len * 10) + digit;
+        int width = parse_uint(&format);
+
+        int precision = 6;
+        if (*format == '.') {
             format++;
+            precision = parse_uint(&format);
         }
 
         if (*format == 'u') {
@@ -99,28 +145,43 @@ int vprintf(const char* format, va_list args) {
             sig = false;
         }
 
-        if (*format == 's') {
-            format++;
-            const char* str = va_arg(args, const char*);
-            size_t len = strlen(str);
-            while (pad_len > len) {
-                printf_try(putchar(pad_char));
-                pad_len--;
+        char specifier = *format++;
+        switch (specifier) {
+            case 's': {
+                const char* str = va_arg(args, const char*);
+                size_t len = strlen(str);
+                while (width > len) {
+                    printf_try(putchar(pad_char));
+                    width--;
+                }
+                printf_try(print(str, len));
+                written += len;
+                break;
             }
-            printf_try(print(str, len));
-            written += len;
-        } else if (*format == 'd') {
-            format++;
-            int32_t num = va_arg(args, int32_t);
-            print_base(num, 10, sig, pad_len, pad_char);
-        } else if (*format == 'x') {
-            format++;
-            int32_t num = va_arg(args, int32_t);
-            print_base(num, 16, false, pad_len, pad_char);
-        } else if (*format == 'b') {
-            format++;
-            int32_t num = va_arg(args, int32_t);
-            print_base(num, 2, false, pad_len, pad_char);
+            case 'd': {
+                int32_t num = va_arg(args, int32_t);
+                print_int(num, 10, sig, width, pad_char);
+                break;
+            }
+            case 'x': {
+                int32_t num = va_arg(args, int32_t);
+                print_int(num, 16, false, width, pad_char);
+                break;
+            }
+            case 'b': {
+                int32_t num = va_arg(args, int32_t);
+                print_int(num, 2, false, width, pad_char);
+                break;
+            }
+            case 'f': {
+                double num = va_arg(args, double);
+                print_double(num, width, precision, pad_char);
+                break;
+            }
+            default: {
+                printf("printf: unknown format specifier %c");
+                break;
+            }
         }
     }
 
