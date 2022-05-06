@@ -8,6 +8,22 @@
 
 uint32_t dbflags = 0xFFFF;
 
+void inline halt() {
+    asm volatile("hlt");
+}
+
+void inline nop() {
+    asm volatile("nop");
+}
+
+void inline sti() {
+    asm volatile("sti");
+}
+
+void inline cli() {
+    asm volatile("cli");
+}
+
 static void print_line() {
     puts(
         "\n--------------------------------------------------------------------"

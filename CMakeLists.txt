@@ -11,6 +11,7 @@ enable_language(ASM_NASM)
 project(MaOS C CXX)
 
 add_subdirectory(libc)
+add_subdirectory(libmath)
 add_subdirectory(kernel)
 
 add_custom_target(qemu COMMAND qemu-system-i386 -kernel "$<TARGET_FILE:kernel>" DEPENDS kernel)
