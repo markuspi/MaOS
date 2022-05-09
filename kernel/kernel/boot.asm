@@ -33,7 +33,7 @@ align 4
     dd 0 ; linear graphics mode
     dd 640 ; preferred width
     dd 400 ; preferred height
-    dd 24 ; preferred depth
+    dd 32 ; preferred depth
 
 
 section .bss

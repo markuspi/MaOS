@@ -26,10 +26,21 @@ void* memset(void* bufptr, int value, size_t n) {
     return bufptr;
 }
 
-void* memcpy(void* dest, const void* src, size_t n) {
+void* memcpy(void* restrict dest, const void* restrict src, size_t n) {
     char* d = dest;
     const char* s = src;
-    for (size_t i = 0; i < n; i++) {
+    if (n < 16) {
+        for (; n > 0; n--, d++, s++) {
+            *d = *s;
+        }
+        return dest;
+    }
+
+    // copies multiple of 4 bytes, might miss last < 4 bytes
+    size_t n_aligned = n & 0xFFFFFFFC;
+    memcpy_aligned(dest, src, n_aligned);
+
+    for (size_t i = n_aligned; i < n; i++) {
         d[i] = s[i];
     }
     return dest;

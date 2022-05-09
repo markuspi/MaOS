@@ -1,9 +1,9 @@
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include "kernel/common.h"
 #include "kernel/keyboard.h"
@@ -41,9 +41,9 @@ static uint32_t hsv2rgb(float h, float s, float v) {
     }
 
     uint8_t r, g, b;
-    r = (uint8_t) ((r_ + m) * 255.0f);
-    g = (uint8_t) ((g_ + m) * 255.0f);
-    b = (uint8_t) ((b_ + m) * 255.0f);
+    r = (uint8_t)((r_ + m) * 255.0f);
+    g = (uint8_t)((g_ + m) * 255.0f);
+    b = (uint8_t)((b_ + m) * 255.0f);
     return (r << 16) | (g << 8) | b;
 }
 
@@ -54,15 +54,15 @@ void kernel_main(multiboot_t* ptr) {
     pmm_init(ptr->mem_upper * KiB + 1 * MiB);
     vm_init();
 
-    //keyboard_init();
+    // keyboard_init();
     timer_init();
 
     printf("Hello, World!!\n");
 
-    printf("ATAN2: %f %f %f %f\n", atan2(0, 1), atan2(1, 0), atan2(0, -1), atan2(-1, 0));
-    printf("FMOD: %f\n", fmod(1.0f, 11.123f));
-
     printf("Multiboot flags: %012b\n", ptr->flags);
+    printf("Screen: %dx%d %d bpp pitch: %d\n", ptr->framebuffer_width, ptr->framebuffer_height,
+           ptr->framebuffer_bpp, ptr->framebuffer_pitch);
+
 
     if (ptr->flags & MB_FLAG_FRAMEBUFFER) {
         size_t pixels = ptr->framebuffer_width * ptr->framebuffer_height;
@@ -76,22 +76,32 @@ void kernel_main(multiboot_t* ptr) {
 
         size_t width = ptr->framebuffer_width;
         size_t height = ptr->framebuffer_height;
+        size_t depth = ptr->framebuffer_bpp / 8;
+        size_t buffer_size = width * height * depth;
+        uint32_t* back_buffer = malloc(buffer_size);
+
         const int w2 = width >> 1;
         const int h2 = height >> 1;
         const float factor = 360.0f / M_2_PI;
         float time = 0;
 
+
         while (true) {
-            size_t i = 0;
+            uint32_t* buf = back_buffer;
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    float hue = fmod(factor * atan2((float)(x - w2), (float)(y - h2)) + time, 360.0f);
+                    float hue = fmod(factor * atan2((float)(x - w2), (float)(y
+                    - h2)) + time, 360.0f);
 
                     u32 col = hsv2rgb(hue, 1.0f, 1.0f);
-                    ptr->framebuffer_addr[i++] = col;
+                    *buf++ = col;
                 }
             }
+            memcpy(ptr->framebuffer_addr, back_buffer, buffer_size);
+            printf("x");
             time += 10.0f;
+
+            sleep(100);
         }
     } else {
         tty_setcolor(tty_makecolor(TTY_COLOR_BLACK, TTY_COLOR_LIGHT_RED));

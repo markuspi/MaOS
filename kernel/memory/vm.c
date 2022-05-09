@@ -114,14 +114,6 @@ void debug_as(as_t* as, vaddr_t addr) {
     printf("Directory: %08x %08x\n", as->directory, as->directory_phys);
     pde_t de = as->directory->entries[dir_idx];
     printf("PDE: P: %d R/W: %d PS: %d Tab: %d\n", de.present, de.rw, de.page_size, de.page_table);
-
-    paddr_t x = (de.page_table << PAGE_BITS) + &KERNEL_OFFSET;
-    paddr_t y = as->tables[dir_idx];
-    printf("Table: %08x %08x\n", x, y);
-
-    pte_t x1 = ((page_table_t*)x)->entries[tab_idx];
-    pte_t y1 = ((page_table_t*)y)->entries[tab_idx];
-    printf("### %08x %08x\n", x1, y1);
 }
 
 void vm_init() {
@@ -213,18 +205,18 @@ paddr_t vm_unmap_page(vaddr_t vaddr) {
 }
 
 void* vm_alloc_kpages(size_t pages) {
-    paddr_t paddr;
     size_t pageno;
     err_t err;
 
     DEBUG(DB_MEMORY, "[VM] Allocating %d virtual pages\n", pages);
 
-    err = pmm_alloc(pages, &paddr);
-    ASSERT(!err, "Out of physical memory");
     err = vm_reserve_pages(&vm_kernel_buckets, pages, &pageno);
     ASSERT(!err, "Out of virtual memory");
     for (size_t i = 0; i < pages; i++) {
-        vm_map_page(current_as, paddr + i * PAGE_SIZE, (pageno + i) * PAGE_SIZE);
+        paddr_t paddr;
+        err = pmm_alloc(1, &paddr);
+        ASSERT(!err, "Out of physical memory");
+        vm_map_page(current_as, paddr, (pageno + i) * PAGE_SIZE);
     }
 
     void* ptr = (void*)(pageno * PAGE_SIZE);

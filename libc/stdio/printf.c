@@ -125,6 +125,7 @@ int vprintf(const char* format, va_list args) {
 
         format++;
         bool sig = true;
+        bool large = false;
         char pad_char = ' ';
 
         if (*format == '0') {
@@ -143,6 +144,11 @@ int vprintf(const char* format, va_list args) {
         if (*format == 'u') {
             format++;
             sig = false;
+        }
+
+        if (*format == 'l') {
+            format++;
+            large = true;
         }
 
         char specifier = *format++;
@@ -165,6 +171,10 @@ int vprintf(const char* format, va_list args) {
             }
             case 'x': {
                 int32_t num = va_arg(args, int32_t);
+                if (large) {
+                    int32_t high = va_arg(args, int32_t);
+                    print_int(high, 16, false, width - 8, pad_char);
+                }
                 print_int(num, 16, false, width, pad_char);
                 break;
             }
