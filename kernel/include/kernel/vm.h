@@ -63,6 +63,7 @@ void vm_init();
 void* vm_alloc_kpages(size_t pages);
 void vm_free_kpages(size_t pages, void* addr);
 void vm_map_page(as_t* as, paddr_t paddr, vaddr_t vaddr);
+void vm_dma(paddr_t paddr, vaddr_t vaddr, size_t size);
 void vm_debug();
 
 extern as_t* current_as;

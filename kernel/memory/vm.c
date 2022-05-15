@@ -319,3 +319,11 @@ void vm_debug() {
         node = node->next;
     }
 }
+
+void vm_dma(paddr_t paddr, vaddr_t vaddr, size_t size) {
+    size_t pages = size / PAGE_SIZE;
+
+    for (size_t i = 0; i < pages; i++) {
+        vm_map_page(current_as, paddr + i * PAGE_SIZE, vaddr + i * PAGE_SIZE);
+    }
+}

@@ -9,9 +9,9 @@ typedef struct multiboot {
     u32 mem_lower;
     u32 mem_upper;
     u32 boot_device;
-    char* cmdline;
+    paddr_t cmdline;
     u8 _unused[68];
-    u32* framebuffer_addr;
+    paddr_t framebuffer_addr;
     u32 framebuffer_addr_high;
     u32 framebuffer_pitch;
     u32 framebuffer_width;
