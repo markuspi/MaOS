@@ -10,6 +10,9 @@ enable_language(ASM_NASM)
 
 project(MaOS C CXX)
 
+# global include directory
+include_directories(include/)
+
 add_subdirectory(libc)
 add_subdirectory(libmath)
 add_subdirectory(kernel)

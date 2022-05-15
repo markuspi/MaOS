@@ -1,7 +1,9 @@
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
+#include <utils.h>
+
+CPP_GUARD_START
 
 typedef enum {
     TTY_COLOR_BLACK = 0,
@@ -32,3 +34,5 @@ void tty_setcolor(uint8_t color);
 void tty_clear();
 void tty_init();
 uint16_t tty_entry(unsigned char c, uint8_t color);
+
+CPP_GUARD_END

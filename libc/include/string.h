@@ -1,6 +1,9 @@
 #pragma once
 
 #include <stddef.h>
+#include <utils.h>
+
+CPP_GUARD_START
 
 int memcmp(const void*, const void*, size_t);
 void* memcpy(void* __restrict, const void* __restrict, size_t);
@@ -13,3 +16,5 @@ void* memset(void* s, int c, size_t n);
 
 size_t strlen(const char* str);
 char* strdup(const char* s);
+
+CPP_GUARD_END

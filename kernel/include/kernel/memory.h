@@ -1,9 +1,10 @@
 #pragma once
 
-#include <stdbool.h>
-#include <stddef.h>
+#include <types.h>
 
 #include "kernel/common.h"
+
+CPP_GUARD_START
 
 #define PAGE_BITS 12
 #define PAGE_SIZE (1 << PAGE_BITS)
@@ -20,3 +21,5 @@ void* pmm_get_border();
 
 void* kmalloc(size_t sz);
 void kfree(void* ptr);
+
+CPP_GUARD_END

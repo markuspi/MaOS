@@ -1,7 +1,8 @@
 #pragma once
 
+#include <types.h>
+
 #include "kernel/multiboot.h"
-#include "kernel/types.h"
 
 bool gfx_init(multiboot_t* mb);
 void gfx_apply(uint32_t* buffer);

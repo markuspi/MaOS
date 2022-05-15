@@ -1,8 +1,9 @@
 #pragma once
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
+#include <utils.h>
+
+CPP_GUARD_START
 
 #define BIT_MASK(b) (1 << ((b) % 32))
 #define BIT_SLOT(b) ((b) / 32)
@@ -27,3 +28,5 @@ void bitset_write(bitset32_t* bitset, uint32_t idx, bool state);
 bool bitset_read(const bitset32_t* bitset, uint32_t idx);
 
 void bitset_fill(bitset32_t* bitset, uint32_t data);
+
+CPP_GUARD_END

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "kernel/types.h"
+#include <types.h>
 
 void outb(u16 port, u8 value);
 void outw(u16 port, u16 value);

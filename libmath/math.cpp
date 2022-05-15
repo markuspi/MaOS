@@ -1,23 +1,20 @@
-#include "math.h"
+#include "math.hpp"
 
-#include <stdint.h>
+#include <types.h>
 
-static const uint32_t SIGN_MASK = 0x80000000;
-static const uint32_t SIGN_MASK_INV = 0x7FFFFFFF;
-
-#define FLOAT_AS_INT(num) (*(uint32_t*)&(num))
-#define INT_AS_FLOAT(num) (*(float*)&(num))
+constexpr u32 SIGN_MASK = 0x80000000;
+constexpr u32 SIGN_MASK_INV = 0x7FFFFFFF;
 
 // Based on https://stackoverflow.com/a/14100975
 float atan2(float y, float x) {
     static const float b = 0.596227f;
 
     // Extract the sign bits
-    uint32_t ux_s = SIGN_MASK & FLOAT_AS_INT(x);
-    uint32_t uy_s = SIGN_MASK & FLOAT_AS_INT(y);
+    u32 ux_s = SIGN_MASK & floatAsInt(x);
+    u32 uy_s = SIGN_MASK & floatAsInt(y);
 
     // Determine the quadrant offset
-    float q = (float)((~ux_s & uy_s) >> 29 | ux_s >> 30);
+    auto q = (float)((~ux_s & uy_s) >> 29 | ux_s >> 30);
 
     // Calculate the arctangent in the first quadrant
     float bxy_a = fabs(b * x * y);
@@ -25,8 +22,8 @@ float atan2(float y, float x) {
     float atan_1q = num / (x * x + bxy_a + num);
 
     // Translate it to the proper quadrant
-    uint32_t uatan_2q = (ux_s ^ uy_s) | FLOAT_AS_INT(atan_1q);
-    return (q + INT_AS_FLOAT(uatan_2q)) * M_PI_2;
+    u32 uatan_2q = (ux_s ^ uy_s) | floatAsInt(atan_1q);
+    return (q + intAsFloat(uatan_2q)) * M_PI_2;
 }
 
 float fmod(float x, float y) {

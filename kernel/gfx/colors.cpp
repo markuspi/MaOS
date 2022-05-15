@@ -1,9 +1,8 @@
 
-#include "kernel/gfx.h"
+#include <types.h>
+#include <math.hpp>
 
-#include <math.h>
-
-#include "kernel/types.h"
+#include "kernel/gfx.hpp"
 
 /// h: [0; 6)
 u32 hsv2rgbfast(float h) {

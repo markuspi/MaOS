@@ -1,5 +1,9 @@
 #pragma once
 
-#include "kernel/types.h"
+#include <utils.h>
+
+CPP_GUARD_START
 
 void pci_init();
+
+CPP_GUARD_END

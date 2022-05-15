@@ -3,8 +3,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <utils.h>
 
-#include "types.h"
+CPP_GUARD_START
 
 typedef enum { E_OK = 0, E_NOMEM = -1, E_DEVICE = -2 } err_t;
 
@@ -51,3 +52,5 @@ void nopN(size_t n);
 void kernel_panic(const char* filename, int line, const char* format, ...);
 
 extern uint32_t dbflags;
+
+CPP_GUARD_END

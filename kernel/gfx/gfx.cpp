@@ -1,10 +1,10 @@
-#include "kernel/gfx.h"
+#include "kernel/gfx.hpp"
 
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
+#include <types.h>
 
 #include "kernel/multiboot.h"
-#include "kernel/types.h"
 #include "kernel/vm.h"
 
 static bool gfx_enabled = false;

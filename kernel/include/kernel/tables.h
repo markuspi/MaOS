@@ -4,6 +4,8 @@
 
 #include "common.h"
 
+CPP_GUARD_START
+
 // :ref https://wiki.osdev.org/Global_Descriptor_Table
 
 typedef struct {
@@ -82,3 +84,5 @@ extern void isr44();
 extern void isr45();
 extern void isr46();
 extern void isr47();
+
+CPP_GUARD_END

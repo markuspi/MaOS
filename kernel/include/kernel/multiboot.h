@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+CPP_GUARD_START
+
 #define MB_FLAG_FRAMEBUFFER (1 << 12)
 
 typedef struct multiboot {
@@ -19,3 +21,5 @@ typedef struct multiboot {
     u8 framebuffer_bpp;
     u8 framebuffer_type;
 } PACKED multiboot_t;
+
+CPP_GUARD_END

@@ -1,9 +1,12 @@
 #pragma once
 
 #include <string.h>
+#include <utils.h>
 
 #include "kernel/common.h"
 #include "kernel/memory.h"
+
+CPP_GUARD_START
 
 typedef struct vm_free_bucket_ {
     size_t pageno;
@@ -70,3 +73,5 @@ extern as_t* current_as;
 
 // defined in paging.asm
 void set_page_directory(paddr_t addr);
+
+CPP_GUARD_END

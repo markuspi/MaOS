@@ -1,12 +1,12 @@
-#include <math.h>
-#include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <types.h>
+
+#include <math.hpp>
 
 #include "kernel/common.h"
-#include "kernel/gfx.h"
+#include "kernel/gfx.hpp"
 #include "kernel/keyboard.h"
 #include "kernel/memory.h"
 #include "kernel/multiboot.h"
@@ -17,7 +17,7 @@
 #include "kernel/tty.h"
 #include "kernel/vm.h"
 
-void kernel_main(multiboot_t* ptr) {
+extern "C" void kernel_main(multiboot_t* ptr) {
     tty_init();
     descriptor_tables_init();
     serial_init(COM1);
@@ -41,7 +41,7 @@ void kernel_main(multiboot_t* ptr) {
         size_t height = ptr->framebuffer_height;
         size_t depth = ptr->framebuffer_bpp / 8;
         size_t buffer_size = width * height * depth;
-        uint32_t* const back_buffer = malloc(buffer_size);
+        const auto back_buffer = (uint32_t*) malloc(buffer_size);
 
         const float factor = 6.0f / M_2_PI;
         float time = 10;

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <stddef.h>
+#include <utils.h>
+
+CPP_GUARD_START
 
 /// Allocate `size` bytes of memory.
 /// The memory is not initialized.
@@ -17,3 +20,5 @@ int liballoc_lock();
 int liballoc_unlock();
 void* liballoc_alloc(int);
 int liballoc_free(void*, int);
+
+CPP_GUARD_END
