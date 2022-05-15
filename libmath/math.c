@@ -29,6 +29,10 @@ float atan2(float y, float x) {
     return (q + INT_AS_FLOAT(uatan_2q)) * M_PI_2;
 }
 
-float sin(float x) {
+float fmod(float x, float y) {
+    unsigned short fpsr;
+    do {
+        asm volatile("fprem; fnstsw %%ax" : "+t"(x), "=a"(fpsr) : "u"(y));
+    } while (fpsr & 0x400);
     return x;
 }

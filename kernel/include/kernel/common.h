@@ -12,6 +12,8 @@ typedef enum { E_OK = 0, E_NOMEM = -1, E_DEVICE = -2 } err_t;
 #define MiB 0x100000
 
 #define DB_MEMORY 0x0001
+#define DB_PCI 0x0002
+#define DB_GFX 0x0004
 
 #define PACKED __attribute__((packed))
 #define UNUSED __attribute__((unused))

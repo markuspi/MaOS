@@ -76,9 +76,9 @@ static int print_double(double num, int width, int precision, char pad_char) {
         int digit = num_int % 10;
 
         // rounding of last digit
-        if (i == precision && num_shifted - num_int > 0.5 - 1e-9) {
-            digit++;
-        }
+//        if (i == precision && num_shifted - num_int > 0.5 - 1e-9) {
+//            digit++;
+//        }
 
         putchar(hexchars[digit]);
     }

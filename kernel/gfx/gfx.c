@@ -1,6 +1,7 @@
 #include "kernel/gfx.h"
 
 #include <string.h>
+#include <stdio.h>
 
 #include "kernel/multiboot.h"
 #include "kernel/types.h"
@@ -15,6 +16,11 @@ bool gfx_init(multiboot_t *mb) {
         return false;
     }
 
+    if (mb->framebuffer_type == 2) {
+        DEBUG(DB_GFX, "[GFX] Framebuffer type is 2: text mode\n");
+        return false;
+    }
+
     size_t pixels = mb->framebuffer_width * mb->framebuffer_height;
     gfx_fb_size = pixels * mb->framebuffer_bpp / 8;
     vm_dma(mb->framebuffer_addr, (vaddr_t)gfx_framebuffer, gfx_fb_size);
@@ -25,6 +31,6 @@ bool gfx_init(multiboot_t *mb) {
     return true;
 }
 
-void gfx_apply(uint32_t *buf) {
-    memcpy(gfx_framebuffer, buf, gfx_fb_size);
+void gfx_apply(uint32_t *buffer) {
+    memcpy(gfx_framebuffer, buffer, gfx_fb_size);
 }

@@ -6,7 +6,7 @@
 
 #include "kernel/tty.h"
 
-uint32_t dbflags = 0xFFFF;
+uint32_t dbflags = 0;
 
 void inline halt() {
     asm volatile("hlt");

@@ -1,7 +1,11 @@
 #pragma once
 
-#include <stdint.h>
+#include "kernel/types.h"
 
-void outb(uint16_t port, uint8_t value);
-uint8_t inb(uint16_t port);
-uint16_t inw(uint16_t port);
+void outb(u16 port, u8 value);
+void outw(u16 port, u16 value);
+void outl(u16 port, u32 value);
+
+u8 inb(u16 port);
+u16 inw(u16 port);
+u32 inl(u16 port);

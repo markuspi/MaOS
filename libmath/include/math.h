@@ -9,7 +9,10 @@ float atan2(float y, float x);
 
 // assembly functions
 
-float fmod(float a, float b);
+/// floating-point modulo
+/// x % y
+float fmod(float x, float y);
+
 float fsin(float x);
 float fcos(float x);
 float fsqrt(float x);

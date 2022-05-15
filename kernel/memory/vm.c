@@ -121,7 +121,7 @@ void vm_init() {
     vaddr_t managed_start = (vaddr_t) &KERNEL_BOOT_MAPPED;
     vaddr_t managed_end = 0xFF000000;
     vm_steal_remaining = managed_start - ((vaddr_t)vm_steal_next);
-    printf("[VM] Stealable: 0x%08x ... 0x%08x (%ud KiB)\n", vm_steal_next, managed_start, vm_steal_remaining >> 10);
+    DEBUG(DB_MEMORY, "[VM] Stealable: 0x%08x ... 0x%08x (%ud KiB)\n", vm_steal_next, managed_start, vm_steal_remaining >> 10);
 
     vm_first_as.directory = &KERNEL_PAGE_DIRECTORY;
     vm_first_as.directory_phys = virtual2phys(&KERNEL_PAGE_DIRECTORY);
