@@ -1,3 +1,15 @@
+# MaOS
+
+Custom WIP x86 Operating System from scratch just for fun.
+Follow [these](https://wiki.osdev.org/GCC_Cross-Compiler) instructions to set up cross compile toolchain.
+
+## Features
+
+* Paging
+* Memory management
+* Serial port
+* Keyboard
+* Basic VGA graphics (WIP)
 
 ## ISO File
 
